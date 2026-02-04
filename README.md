@@ -1,2 +1,945 @@
-# Consulta-de-clientes
-Consulta de datos
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Cliente - Eureka Education</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .search-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .search-options h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .radio-option {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        .radio-option.active {
+            border-color: #667eea;
+            background: #667eea;
+        }
+
+        .radio-option.active label {
+            color: white;
+        }
+
+        .radio-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Selección de clientes */
+        .selection-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .selection-container.active {
+            display: block;
+        }
+
+        .selection-title {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+        }
+
+        .selection-title h3 {
+            color: #856404;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .selection-title p {
+            color: #856404;
+            font-size: 14px;
+        }
+
+        .clientes-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .cliente-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .cliente-card:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+
+        .cliente-card.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .cliente-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cliente-nombre {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .similitud-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cliente-card.selected .similitud-badge {
+            background: white;
+            color: #667eea;
+        }
+
+        .cliente-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-weight: 600;
+        }
+
+        .cliente-card.selected .cliente-info {
+            color: white;
+        }
+
+        .btn-confirmar {
+            margin-top: 20px;
+            background: #28a745;
+        }
+
+        /* Resultado */
+        .result {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+            text-align: right;
+        }
+
+        .payment-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #ffc107;
+        }
+
+        .payment-title {
+            color: #856404;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .mensualidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mensualidad-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mensualidad-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .mensualidad-item.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .mensualidad-mes {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .mensualidad-fecha {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .mensualidad-item.selected .mensualidad-fecha {
+            color: #f0f4ff;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+            font-size: 16px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Consulta de Cliente</h1>
+        <p class="subtitle">Sistema de Gestión de Pagos - Eureka Education</p>
+
+        <!-- Formulario de búsqueda -->
+        <div id="consultaForm">
+            <form id="searchForm">
+                <div class="search-options">
+                    <h3>📋 Seleccione el tipo de búsqueda:</h3>
+                    <div class="radio-group">
+                        <div class="radio-option active" id="optionContrato">
+                            <input type="radio" id="radioContrato" name="tipoBusqueda" value="contrato" checked>
+                            <label for="radioContrato">Número de Contrato</label>
+                        </div>
+                        <div class="radio-option" id="optionNombre">
+                            <input type="radio" id="radioNombre" name="tipoBusqueda" value="nombre">
+                            <label for="radioNombre">Nombre del Titular</label>
+                        </div>
+                        <div class="radio-option" id="optionCedula">
+                            <input type="radio" id="radioCedula" name="tipoBusqueda" value="cedula">
+                            <label for="radioCedula">Cédula</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="grupoContrato">
+                    <label for="numeroContrato">Número de Contrato:</label>
+                    <input 
+                        type="text" 
+                        id="numeroContrato" 
+                        name="numeroContrato" 
+                        placeholder="Ej: 01, 02, 03..."
+                    >
+                </div>
+
+                <div class="form-group hidden" id="grupoNombre">
+                    <label for="nombreTitular">Nombre del Titular:</label>
+                    <input 
+                        type="text" 
+                        id="nombreTitular" 
+                        name="nombreTitular" 
+                        placeholder="Ej: Rommel Lopez"
+                    >
+                    <small style="color: #666; font-size: 12px;">💡 Si hay varios clientes similares, podrá seleccionar el correcto</small>
+                </div>
+
+                <div class="form-group hidden" id="grupoCedula">
+                    <label for="cedula">Cédula del Cliente:</label>
+                    <input 
+                        type="text" 
+                        id="cedula" 
+                        name="cedula" 
+                        placeholder="Ej: 1850219427"
+                    >
+                </div>
+
+                <button type="submit" id="btnConsultar">🔍 Consultar Cliente</button>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #667eea;">Buscando cliente...</p>
+        </div>
+
+        <!-- Selección de clientes similares -->
+        <div class="selection-container" id="selectionContainer">
+            <div class="selection-title">
+                <h3>👥 Clientes Encontrados</h3>
+                <p id="selectionMessage">Seleccione el cliente correcto de la lista:</p>
+            </div>
+            <div class="clientes-grid" id="clientesGrid"></div>
+            <button type="button" id="btnConfirmarSeleccion" class="btn-confirmar" disabled>✅ Confirmar Selección</button>
+            <button type="button" id="btnCancelarSeleccion" class="btn-secondary">🔙 Nueva Búsqueda</button>
+        </div>
+
+        <!-- Resultado del cliente -->
+        <div class="result" id="result">
+            <div class="info-card">
+                <h2 class="section-title">📋 Información del Titular</h2>
+                <div class="info-row">
+                    <span class="info-label">Número de Contrato:</span>
+                    <span class="info-value" id="numeroContratoInfo"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value" id="nombre"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cédula:</span>
+                    <span class="info-value" id="cedulaInfo"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Teléfono:</span>
+                    <span class="info-value" id="telefono"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Correo:</span>
+                    <span class="info-value" id="correo"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dirección:</span>
+                    <span class="info-value" id="direccion"></span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2 class="section-title">🎓 Información del Programa</h2>
+                <div class="info-row">
+                    <span class="info-label">Programa:</span>
+                    <span class="info-value" id="programa"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Modalidad:</span>
+                    <span class="info-value" id="modalidad"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Inicio:</span>
+                    <span class="info-value" id="fechaInicio"></span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2 class="section-title">💰 Información de Pago</h2>
+                <div class="info-row">
+                    <span class="info-label">Forma de Pago:</span>
+                    <span class="info-value" id="formaPago"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Corte:</span>
+                    <span class="info-value" id="fechaCorte"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Primer Pago:</span>
+                    <span class="info-value" id="primerPago"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Número de Mensualidades:</span>
+                    <span class="info-value" id="numeroMensualidades"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Valor Mensual:</span>
+                    <span class="info-value" id="valorMensual"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Precio Total:</span>
+                    <span class="info-value" id="precioTotal"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Saldo Pendiente:</span>
+                    <span class="info-value" id="saldo" style="color: #dc3545; font-weight: 700;"></span>
+                </div>
+            </div>
+
+            <div class="payment-section">
+                <h3 class="payment-title">💳 Seleccione la Mensualidad a Pagar</h3>
+                <p style="color: #856404; margin-bottom: 10px;">Haga clic en la mensualidad que desea registrar:</p>
+                <div class="mensualidades-grid" id="mensualidadesGrid"></div>
+                
+                <div style="margin-top: 20px;" id="pagoConfirm" class="hidden">
+                    <div class="info-row" style="background: white; padding: 15px; border-radius: 8px;">
+                        <span class="info-label">Mensualidad Seleccionada:</span>
+                        <span class="info-value" id="mensualidadSeleccionada" style="color: #667eea; font-weight: 700;"></span>
+                    </div>
+                    <div class="info-row" style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <span class="info-label">Fecha de Pago:</span>
+                        <span class="info-value" id="fechaPagoSeleccionada" style="color: #667eea; font-weight: 700;"></span>
+                    </div>
+                    <div class="info-row" style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <span class="info-label">Monto a Pagar:</span>
+                        <span class="info-value" id="montoAPagar" style="color: #28a745; font-weight: 700; font-size: 18px;"></span>
+                    </div>
+                    <button type="button" id="btnRegistrarPago" style="margin-top: 15px;">💵 Registrar Pago</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn-secondary" id="btnNuevaConsulta">🔄 Nueva Consulta</button>
+        </div>
+
+        <div id="mensajes"></div>
+    </div>
+
+    <script>
+        // IMPORTANTE: Reemplazar con la URL real de tu webhook de n8n
+        const WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
+        
+        let clienteActual = null;
+        let mensualidadSeleccionada = null;
+        let clientesDisponibles = [];
+        let clienteSeleccionadoIndex = null;
+
+        const searchForm = document.getElementById('searchForm');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const selectionContainer = document.getElementById('selectionContainer');
+        const consultaForm = document.getElementById('consultaForm');
+        const mensajesDiv = document.getElementById('mensajes');
+        const btnNuevaConsulta = document.getElementById('btnNuevaConsulta');
+        const btnConfirmarSeleccion = document.getElementById('btnConfirmarSeleccion');
+        const btnCancelarSeleccion = document.getElementById('btnCancelarSeleccion');
+        const mensualidadesGrid = document.getElementById('mensualidadesGrid');
+        const pagoConfirm = document.getElementById('pagoConfirm');
+        const btnRegistrarPago = document.getElementById('btnRegistrarPago');
+
+        const grupoContrato = document.getElementById('grupoContrato');
+        const grupoNombre = document.getElementById('grupoNombre');
+        const grupoCedula = document.getElementById('grupoCedula');
+
+        const radioOptions = document.querySelectorAll('.radio-option');
+        
+        // Manejar cambio de tipo de búsqueda
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                radioOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                const tipoBusqueda = radio.value;
+                
+                grupoContrato.classList.add('hidden');
+                grupoNombre.classList.add('hidden');
+                grupoCedula.classList.add('hidden');
+                
+                if (tipoBusqueda === 'contrato') {
+                    grupoContrato.classList.remove('hidden');
+                } else if (tipoBusqueda === 'nombre') {
+                    grupoNombre.classList.remove('hidden');
+                } else if (tipoBusqueda === 'cedula') {
+                    grupoCedula.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Consultar cliente
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const tipoBusqueda = document.querySelector('input[name="tipoBusqueda"]:checked').value;
+            let valorBusqueda = '';
+            let campoBusqueda = '';
+            
+            if (tipoBusqueda === 'contrato') {
+                valorBusqueda = document.getElementById('numeroContrato').value.trim();
+                campoBusqueda = 'numeroContrato';
+            } else if (tipoBusqueda === 'nombre') {
+                valorBusqueda = document.getElementById('nombreTitular').value.trim();
+                campoBusqueda = 'nombreTitular';
+            } else if (tipoBusqueda === 'cedula') {
+                valorBusqueda = document.getElementById('cedula').value.trim();
+                campoBusqueda = 'cedulaTitular';
+            }
+            
+            if (!valorBusqueda) {
+                mostrarError('Por favor ingrese un valor para buscar');
+                return;
+            }
+
+            loading.classList.add('active');
+            result.classList.remove('active');
+            selectionContainer.classList.remove('active');
+            mensajesDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        accion: 'consultar',
+                        tipoBusqueda: tipoBusqueda,
+                        campoBusqueda: campoBusqueda,
+                        valorBusqueda: valorBusqueda
+                    })
+                });
+
+                const data = await response.json();
+                
+                loading.classList.remove('active');
+
+                if (data.success) {
+                    if (data.tipo === 'cliente_unico') {
+                        // Un solo cliente - mostrar directamente
+                        clienteActual = data.cliente;
+                        mostrarCliente(data.cliente);
+                    } else if (data.tipo === 'seleccion_requerida') {
+                        // Múltiples clientes - mostrar para seleccionar
+                        clientesDisponibles = data.clientes;
+                        mostrarSeleccionClientes(data);
+                    }
+                } else {
+                    mostrarError(data.mensaje || 'Cliente no encontrado');
+                }
+            } catch (error) {
+                loading.classList.remove('active');
+                mostrarError('Error al consultar el cliente. Por favor intente nuevamente.');
+                console.error('Error:', error);
+            }
+        });
+
+        // Mostrar lista de clientes similares
+        function mostrarSeleccionClientes(data) {
+            document.getElementById('selectionMessage').textContent = data.mensaje;
+            const grid = document.getElementById('clientesGrid');
+            grid.innerHTML = '';
+
+            data.clientes.forEach((cliente, index) => {
+                const card = document.createElement('div');
+                card.className = 'cliente-card';
+                card.dataset.index = index;
+                
+                card.innerHTML = `
+                    <div class="cliente-header">
+                        <div class="cliente-nombre">${cliente.nombreTitular}</div>
+                        <div class="similitud-badge">${cliente.similitud}% similar</div>
+                    </div>
+                    <div class="cliente-info">
+                        <div class="info-item">
+                            <span class="info-label">Contrato:</span>
+                            <span>${cliente.numeroContrato}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cédula:</span>
+                            <span>${cliente.cedulaTitular}</span>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-label">Programa:</span>
+                            <span>${cliente.tipoPrograma}</span>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.cliente-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    clienteSeleccionadoIndex = index;
+                    btnConfirmarSeleccion.disabled = false;
+                });
+
+                grid.appendChild(card);
+            });
+
+            consultaForm.style.display = 'none';
+            selectionContainer.classList.add('active');
+        }
+
+        // Confirmar selección de cliente
+        btnConfirmarSeleccion.addEventListener('click', async () => {
+            if (clienteSeleccionadoIndex === null) return;
+
+            const clienteSeleccionado = clientesDisponibles[clienteSeleccionadoIndex].clienteCompleto;
+            
+            loading.classList.add('active');
+            selectionContainer.classList.remove('active');
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        accion: 'seleccionar_cliente',
+                        clienteSeleccionado: clienteSeleccionado
+                    })
+                });
+
+                const data = await response.json();
+                loading.classList.remove('active');
+
+                if (data.success) {
+                    clienteActual = data.cliente;
+                    mostrarCliente(data.cliente);
+                }
+            } catch (error) {
+                loading.classList.remove('active');
+                mostrarError('Error al seleccionar el cliente');
+                console.error('Error:', error);
+            }
+        });
+
+        // Cancelar selección
+        btnCancelarSeleccion.addEventListener('click', () => {
+            selectionContainer.classList.remove('active');
+            consultaForm.style.display = 'block';
+            clienteSeleccionadoIndex = null;
+            btnConfirmarSeleccion.disabled = true;
+        });
+
+        // Mostrar información del cliente
+        function mostrarCliente(cliente) {
+            document.getElementById('numeroContratoInfo').textContent = cliente.numeroContrato || 'N/A';
+            document.getElementById('nombre').textContent = cliente.nombreTitular;
+            document.getElementById('cedulaInfo').textContent = cliente.cedulaTitular;
+            document.getElementById('telefono').textContent = cliente.telefonoTitular;
+            document.getElementById('correo').textContent = cliente.correoElectronico;
+            document.getElementById('direccion').textContent = cliente.direccion || 'N/A';
+
+            document.getElementById('programa').textContent = cliente.tipoPrograma;
+            document.getElementById('modalidad').textContent = cliente.modalidad;
+            document.getElementById('fechaInicio').textContent = cliente.fechaInicioTutorias || 'N/A';
+
+            document.getElementById('formaPago').textContent = cliente.formaPago;
+            document.getElementById('fechaCorte').textContent = 'Día ' + cliente.fechaCorte + ' de cada mes';
+            document.getElementById('primerPago').textContent = cliente.primerPago || 'N/A';
+            document.getElementById('numeroMensualidades').textContent = cliente.numeroMensualidades;
+            document.getElementById('valorMensual').textContent = '$' + cliente.valorMensual;
+            document.getElementById('precioTotal').textContent = '$' + (cliente.precioTotal || '0');
+            document.getElementById('saldo').textContent = '$' + cliente.saldo;
+
+            generarMensualidades(cliente);
+
+            result.classList.add('active');
+            consultaForm.style.display = 'none';
+        }
+
+        function generarMensualidades(cliente) {
+            mensualidadesGrid.innerHTML = '';
+            const numMensualidades = parseInt(cliente.numeroMensualidades);
+
+            for (let i = 1; i <= numMensualidades; i++) {
+                const mesClave = 'Mes ' + i;
+                const fechaPago = cliente[mesClave];
+
+                if (fechaPago) {
+                    const div = document.createElement('div');
+                    div.className = 'mensualidad-item';
+                    div.innerHTML = '<div class="mensualidad-mes">Mes ' + i + '</div><div class="mensualidad-fecha">' + fechaPago + '</div>';
+                    div.addEventListener('click', function() {
+                        seleccionarMensualidad(i, fechaPago, cliente.valorMensual);
+                    });
+                    mensualidadesGrid.appendChild(div);
+                }
+            }
+        }
+
+        function seleccionarMensualidad(mes, fecha, monto) {
+            document.querySelectorAll('.mensualidad-item').forEach(item => item.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            mensualidadSeleccionada = { mes, fecha, monto };
+
+            document.getElementById('mensualidadSeleccionada').textContent = 'Mes ' + mes;
+            document.getElementById('fechaPagoSeleccionada').textContent = fecha;
+            document.getElementById('montoAPagar').textContent = '$' + monto;
+            pagoConfirm.classList.remove('hidden');
+        }
+
+        btnRegistrarPago.addEventListener('click', async () => {
+            if (!mensualidadSeleccionada) {
+                mostrarError('Por favor seleccione una mensualidad');
+                return;
+            }
+
+            btnRegistrarPago.disabled = true;
+            btnRegistrarPago.textContent = '⏳ Registrando...';
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        accion: 'registrar_pago',
+                        numeroContrato: clienteActual.numeroContrato,
+                        cedula: clienteActual.cedulaTitular,
+                        mes: mensualidadSeleccionada.mes,
+                        fecha: mensualidadSeleccionada.fecha,
+                        monto: mensualidadSeleccionada.monto,
+                        nombreCliente: clienteActual.nombreTitular
+                    })
+                });
+
+                const data = await response.json();
+
+                btnRegistrarPago.disabled = false;
+                btnRegistrarPago.textContent = '💵 Registrar Pago';
+
+                if (data.success) {
+                    mostrarExito(data.mensaje || 'Pago registrado exitosamente');
+                    event.target.parentElement.parentElement.querySelector('.mensualidad-item.selected').style.opacity = '0.5';
+                    pagoConfirm.classList.add('hidden');
+                } else {
+                    mostrarError(data.mensaje || 'Error al registrar el pago');
+                }
+            } catch (error) {
+                btnRegistrarPago.disabled = false;
+                btnRegistrarPago.textContent = '💵 Registrar Pago';
+                mostrarError('Error al registrar el pago.');
+                console.error('Error:', error);
+            }
+        });
+
+        btnNuevaConsulta.addEventListener('click', () => {
+            result.classList.remove('active');
+            consultaForm.style.display = 'block';
+            document.getElementById('numeroContrato').value = '';
+            document.getElementById('nombreTitular').value = '';
+            document.getElementById('cedula').value = '';
+            mensajesDiv.innerHTML = '';
+            clienteActual = null;
+            mensualidadSeleccionada = null;
+            clienteSeleccionadoIndex = null;
+            pagoConfirm.classList.add('hidden');
+        });
+
+        function mostrarError(mensaje) {
+            mensajesDiv.innerHTML = '<div class="error">❌ ' + mensaje + '</div>';
+        }
+
+        function mostrarExito(mensaje) {
+            mensajesDiv.innerHTML = '<div class="success">✅ ' + mensaje + '</div>';
+        }
+    </script>
+</body>
+</html>
