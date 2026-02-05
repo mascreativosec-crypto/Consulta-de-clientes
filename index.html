@@ -18,33 +18,12 @@
             padding: 0;
         }
 
-        /* HEADER */
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px 20px;
+        /* HEADER INTERNO */
+        .header-interno {
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-logo {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            opacity: 0.95;
-        }
-
-        .header-subtitle {
-            font-size: 14px;
-            opacity: 0.85;
-            font-weight: 300;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
         }
 
         .header-icon {
@@ -52,10 +31,24 @@
             margin-bottom: 10px;
         }
 
+        .header-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: #666;
+            font-weight: 400;
+        }
+
         /* CONTAINER */
         .container {
             max-width: 900px;
-            margin: 30px auto;
+            margin: 40px auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -454,19 +447,7 @@
             padding-bottom: 5px;
         }
 
-        /* FOOTER */
-        .footer {
-            background: #1e3c72;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-            font-size: 14px;
-        }
 
-        .footer p {
-            opacity: 0.9;
-        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -486,16 +467,14 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <div class="header">
-        <div class="header-icon">🎓</div>
-        <div class="header-logo">Eureka! Education</div>
-        <div class="header-title">Sistema de Gestión de Pagos</div>
-        <div class="header-subtitle">Consulta de Información de Clientes y Registro de Mensualidades</div>
-    </div>
-
     <!-- CONTENIDO PRINCIPAL -->
     <div class="container">
+        <!-- HEADER INTERNO -->
+        <div class="header-interno">
+            <div class="header-icon">🎓</div>
+            <div class="header-logo">Eureka! Education</div>
+        </div>
+
         <h1>🔍 Consulta de Cliente</h1>
         <p class="subtitle">Busca clientes por contrato, nombre o cédula</p>
 
@@ -676,12 +655,6 @@
         </div>
 
         <div id="mensajes"></div>
-    </div>
-
-    <!-- FOOTER -->
-    <div class="footer">
-        <p>© 2026 Eureka! Education - Sistema de Gestión de Pagos</p>
-        <p style="margin-top: 5px; opacity: 0.7; font-size: 12px;">Todos los derechos reservados</p>
     </div>
 
     <script>
